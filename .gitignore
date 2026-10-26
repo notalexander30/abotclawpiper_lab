@@ -1,0 +1,15 @@
+upstream/
+build/
+install/
+log/
+logs/
+__pycache__/
+*.pyc
+.pytest_cache/
+.xauth
+.container/
+artifacts/
+.idea/
+.vscode/
+*.tar.gz
+*.zip

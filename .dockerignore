@@ -1,0 +1,13 @@
+**/.git
+build
+install
+log
+logs
+**/__pycache__
+.container
+.xauth
+artifacts
+.idea
+.vscode
+*.tar.gz
+*.zip

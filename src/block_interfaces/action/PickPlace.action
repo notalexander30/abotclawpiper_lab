@@ -1,0 +1,25 @@
+# Exact model name, or a color that identifies exactly one registered block.
+string block
+# Optional: stack on this registered block. The target is derived from its
+# current pose, with matching yaw. Leave empty for coordinate placement.
+string support_block
+# Desired BLOCK CENTRE pose. frame_id must be world; metres, upright yaw.
+geometry_msgs/PoseStamped target
+# none (also empty) or screenshot. Required evidence must exist before success.
+string evidence
+---
+bool success
+string code
+string message
+geometry_msgs/PoseStamped final_pose
+# True means an error/cancellation left the block held; restart to recover.
+bool holding_block
+string task_id
+bool verified
+bool already_complete
+string[] evidence_files
+string report_file
+---
+string stage
+string message
+float32 progress

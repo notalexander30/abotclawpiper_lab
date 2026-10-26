@@ -1,0 +1,11 @@
+# list, spawn, spawn_random, move, randomize. Mutations are rejected during a skill.
+string operation
+string name
+string color
+# World frame, metres; block centre. Only upright poses are supported.
+geometry_msgs/PoseStamped pose
+int64 seed
+---
+bool success
+string message
+block_interfaces/Block[] blocks

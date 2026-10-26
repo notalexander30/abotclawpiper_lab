@@ -1,0 +1,7 @@
+{
+  "ubuntu": "22.04 (jammy)",
+  "ros": "humble",
+  "ros2_SimRealRobotControl": "9645e14a36cd7411871c9572275e6435ab41dac7",
+  "IFRA_LinkAttacher": "b056289ba93ccb549db98926dcbb9679642d0c8d",
+  "gazebo_ros2_control": "9a3736cc742e73fc86355ef4fdb63326376ca1db"
+}

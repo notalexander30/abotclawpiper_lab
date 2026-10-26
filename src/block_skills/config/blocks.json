@@ -1,0 +1,23 @@
+{
+  "frame": "world",
+  "table": {"center": [0.70, 0.0, 0.60], "size": [0.90, 1.20, 0.10]},
+  "workspace": {"x": [0.38, 0.95], "y": [-0.45, 0.45], "spacing": 0.16},
+  "block_size": 0.05,
+  "approach_height": 0.18,
+  "grasp_offset": 0.015,
+  "placement_tolerance": 0.02,
+  "yaw_tolerance": 0.15,
+  "max_stack_height": 3,
+  "stack_position_tolerance": 0.005,
+  "colors": {
+    "red": [0.9, 0.08, 0.08, 1.0],
+    "blue": [0.08, 0.22, 0.95, 1.0],
+    "green": [0.08, 0.75, 0.2, 1.0],
+    "yellow": [0.95, 0.8, 0.05, 1.0]
+  },
+  "blocks": [
+    {"name": "red_block", "color": "red", "position": [0.55, -0.28, 0.675], "yaw": 0.0},
+    {"name": "blue_block", "color": "blue", "position": [0.70, 0.0, 0.675], "yaw": 0.0},
+    {"name": "green_block", "color": "green", "position": [0.55, 0.28, 0.675], "yaw": 0.0}
+  ]
+}
