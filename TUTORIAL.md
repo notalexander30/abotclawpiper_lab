@@ -21,9 +21,9 @@ and the ROS dependencies.
 | --- | --- | --- |
 | 00:00–00:20 | Understand the system and inspect the new PC | Requirements confirmed |
 | 00:20–00:45 | Install Git, Docker and GUI support | Docker test passes |
-| 00:45–01:00 | Download the project and robot assets | Source tree complete |
-| 01:00–01:40 | Build the Docker image | Humble/IFRA image built |
-| 01:40–02:00 | Build and test custom packages | Workspace ready |
+| 00:45–01:15 | Create a workspace, clone robot assets and add skills | Source tree complete |
+| 01:15–01:45 | Build the Docker image | Humble/IFRA image built |
+| 01:45–02:00 | Build and test custom packages | Workspace ready |
 | 02:00–02:20 | Launch Gazebo and RViz | Robot and table visible |
 | 02:20–02:40 | Inspect poses and use basic skills | One block moved |
 | 02:40–02:55 | Stack three blocks | Stack verified |
@@ -56,7 +56,7 @@ The table belongs to the custom project. Its dimensions are configured in
 `src/block_skills/config/blocks.json`; `geometry.py` generates the table top,
 four legs, floor and block models when the launch file creates the Gazebo
 world. Students therefore receive the robot and table after completing the
-source-download step below.
+workspace setup below.
 
 ---
 
@@ -182,46 +182,42 @@ docker run --rm hello-world
 
 ---
 
-# 2. Download the project and UR10e assets — 15 minutes
+# 2. Create the workspace and add the skills — 30 minutes
 
-## 2.1 Get the custom project
+Students do **not** clone the finished `abotclawpiper_lab` repository in this
+lab. Start with an empty directory, clone the robot projects that the
+simulation needs, and then add the custom ROS 2 skill packages. This makes the
+boundary between reused IFRA code and student-added code visible.
 
-**Option A — clone the GitHub repository:**
+## 2.1 Create an empty lab workspace
 
-```bash
-cd "$HOME"
-PROJECT_REPOSITORY_URL="https://github.com/notalexander30/abotclawpiper_lab.git"
-git clone "$PROJECT_REPOSITORY_URL" abotclaw-piper
-cd abotclaw-piper
-```
-
-**Option B — extract a supplied project archive:**
+**Host terminal:**
 
 ```bash
 cd "$HOME"
-mkdir -p abotclaw-piper
-tar -xzf /path/to/abotclaw-piper.tar.gz -C abotclaw-piper --strip-components=1
-cd abotclaw-piper
+mkdir -p ur10e-skills-lab/{upstream,src,docker}
+cd ur10e-skills-lab
 ```
 
-Confirm the custom source exists:
+The intended layout is:
 
-```bash
-test -f docker/Dockerfile
-test -f src/block_skills/config/blocks.json
-test -f src/block_skills/block_skills/geometry.py
-test -f src/block_interfaces/action/PickPlace.action
-echo "Custom project files found"
+```text
+ur10e-skills-lab/
+├── upstream/                 # pinned third-party repositories; do not edit
+├── src/
+│   ├── block_interfaces/     # typed ROS action, service and message
+│   └── block_skills/         # Gazebo, MoveIt and stacking behavior
+└── docker/                   # reproducible Ubuntu/ROS environment
 ```
 
-## 2.2 Download the complete UR10e and simulator dependencies
+## 2.2 Clone the required robot and simulator repositories
 
-The project repository intentionally keeps third-party source separate. Clone
-the pinned revisions into `upstream/`:
+Clone the pinned revisions into `upstream/`. The first repository supplies the
+UR10e, Robotiq gripper, controllers and MoveIt configuration. The second
+supplies simulated attach/detach services. The third provides the Humble
+Gazebo controller plugin required by the IFRA simulation.
 
 ```bash
-mkdir -p upstream
-
 git clone https://github.com/IFRA-Cranfield/ros2_SimRealRobotControl.git \
   upstream/ros2_SimRealRobotControl
 git -C upstream/ros2_SimRealRobotControl checkout \
@@ -238,13 +234,13 @@ git -C upstream/gazebo_ros2_control checkout \
   9a3736cc742e73fc86355ef4fdb63326376ca1db
 ```
 
-Confirm that the UR10e Xacro, table configuration and world generator exist:
+Confirm the important upstream files instead of assuming the clone worked:
 
 ```bash
 test -f upstream/ros2_SimRealRobotControl/packages/ros2srrc_ur10e/urdf/ur10e_robotiq_2f85.urdf.xacro
-test -f src/block_skills/config/blocks.json
-test -f src/block_skills/block_skills/geometry.py
-echo "UR10e assets and generated table source found"
+test -d upstream/IFRA_LinkAttacher
+test -d upstream/gazebo_ros2_control/gazebo_ros2_control
+echo "Pinned robot dependencies found"
 ```
 
 If the UR10e check fails, locate the model without guessing:
@@ -253,19 +249,200 @@ If the UR10e check fails, locate the model without guessing:
 find upstream/ros2_SimRealRobotControl -iname '*ur10e*' | head -30
 ```
 
-The exact commits are also recorded in `repositories.json`. Keep upstream files
-unchanged; add project-specific behavior under `src/`.
+Check that every checkout is on the expected commit:
+
+```bash
+git -C upstream/ros2_SimRealRobotControl rev-parse HEAD
+git -C upstream/IFRA_LinkAttacher rev-parse HEAD
+git -C upstream/gazebo_ros2_control rev-parse HEAD
+```
+
+Expected values, in the same order:
+
+```text
+9645e14a36cd7411871c9572275e6435ab41dac7
+b056289ba93ccb549db98926dcbb9679642d0c8d
+9a3736cc742e73fc86355ef4fdb63326376ca1db
+```
+
+Keep these repositories unchanged. All new behavior belongs under `src/`.
+
+## 2.3 Add the typed ROS 2 interface package
+
+Create the package layout:
+
+```bash
+mkdir -p src/block_interfaces/{action,msg,srv}
+```
+
+`PickPlace.action` is the main skill contract. A caller gives either a target
+pose or the name of a support block. Feedback describes the current stage, and
+the result carries machine-readable verification and evidence fields.
+
+```bash
+curl -fL https://raw.githubusercontent.com/notalexander30/abotclawpiper_lab/main/src/block_interfaces/action/PickPlace.action \
+  -o src/block_interfaces/action/PickPlace.action
+curl -fL https://raw.githubusercontent.com/notalexander30/abotclawpiper_lab/main/src/block_interfaces/msg/Block.msg \
+  -o src/block_interfaces/msg/Block.msg
+curl -fL https://raw.githubusercontent.com/notalexander30/abotclawpiper_lab/main/src/block_interfaces/srv/Blocks.srv \
+  -o src/block_interfaces/srv/Blocks.srv
+curl -fL https://raw.githubusercontent.com/notalexander30/abotclawpiper_lab/main/src/block_interfaces/CMakeLists.txt \
+  -o src/block_interfaces/CMakeLists.txt
+curl -fL https://raw.githubusercontent.com/notalexander30/abotclawpiper_lab/main/src/block_interfaces/package.xml \
+  -o src/block_interfaces/package.xml
+```
+
+Read the action before continuing:
+
+```bash
+cat src/block_interfaces/action/PickPlace.action
+```
+
+The two `---` separators divide goal, result and feedback. This typed action is
+what a future agent adapter should call; the agent does not need permission to
+run arbitrary shell commands or joint trajectories.
+
+## 2.4 Add the reusable `block_skills` package
+
+Create the Python package directories:
+
+```bash
+mkdir -p src/block_skills/{block_skills,config,launch,resource,test}
+touch src/block_skills/block_skills/__init__.py
+touch src/block_skills/resource/block_skills
+```
+
+Download the individual skill implementation files into the package. This is
+not a clone of the completed lab repository: the files are added explicitly to
+the blank workspace so students can inspect what each layer contributes.
+
+```bash
+RAW=https://raw.githubusercontent.com/notalexander30/abotclawpiper_lab/main/src/block_skills
+
+for FILE in capture.py check.py cli.py geometry.py reports.py server.py; do
+  curl -fL "$RAW/block_skills/$FILE" -o "src/block_skills/block_skills/$FILE"
+done
+
+curl -fL "$RAW/config/blocks.json" -o src/block_skills/config/blocks.json
+curl -fL "$RAW/launch/sim.launch.py" -o src/block_skills/launch/sim.launch.py
+curl -fL "$RAW/package.xml" -o src/block_skills/package.xml
+curl -fL "$RAW/setup.py" -o src/block_skills/setup.py
+curl -fL "$RAW/setup.cfg" -o src/block_skills/setup.cfg
+
+for FILE in test_geometry.py test_node.py test_reports.py; do
+  curl -fL "$RAW/test/$FILE" -o "src/block_skills/test/$FILE"
+done
+```
+
+These modules have separate jobs:
+
+| File | Responsibility |
+| --- | --- |
+| `geometry.py` | Generate the table, floor and colored cube SDF; calculate poses and stack relationships |
+| `server.py` | Query Gazebo state, validate requests, plan MoveIt motions, attach/detach and verify results |
+| `cli.py` | Convert student commands such as `pick`, `stack` and `add` into typed ROS requests |
+| `capture.py` | Save Gazebo screenshot evidence after physical verification |
+| `reports.py` | Write and read structured JSON task results |
+| `check.py` | Wait until Gazebo, MoveIt, controllers and the skill server are ready |
+| `sim.launch.py` | Start IFRA's UR10e/Robotiq simulation and the custom skill server |
+
+Inspect where the public commands and ROS endpoints are registered:
+
+```bash
+rg -n "add_parser|ActionServer|create_service|create_client" \
+  src/block_skills/block_skills
+```
+
+If `rg` is unavailable, install it with `sudo apt install -y ripgrep` or use:
+
+```bash
+grep -RniE "add_parser|ActionServer|create_service|create_client" \
+  src/block_skills/block_skills
+```
+
+## 2.5 Understand how a skill is added
+
+A complete skill crosses four layers. Use `stack` as the example:
+
+1. `PickPlace.action` defines typed input, feedback and results.
+2. `cli.py` registers the `stack BLOCK SUPPORT` command and sends an action
+   goal with `stack=true` and the support model name.
+3. `server.py` exposes `/skills/pick_place`, looks up both live Gazebo poses,
+   calculates the target above the support, and executes the motion phases.
+4. `server.py` reads the final Gazebo pose, verifies the support relationship,
+   then `reports.py` records the result and `capture.py` requests a screenshot.
+
+Trace that path in the actual source:
+
+```bash
+rg -n "stack|/skills/pick_place|def execute|save_report|capture" \
+  src/block_interfaces src/block_skills
+```
+
+When adding another predefined skill later, follow the same pattern:
+
+1. Add only the new typed goal/result fields that callers need.
+2. Add one allowlisted CLI or agent operation with validated arguments.
+3. Implement the server behavior from reusable pose, planning, gripper and
+   verification helpers.
+4. Return feedback during long operations and a stable error code on failure.
+5. Verify simulator state after execution; a completed MoveIt trajectory alone
+   does not prove that the block reached its target.
+6. Add tests for geometry, validation and result serialization before exposing
+   the operation to an AI agent.
+
+This is the skill boundary ABot-Claw will use later. Natural language should
+select one of these typed, allowlisted operations; it should not generate
+unrestricted ROS or shell commands.
+
+## 2.6 Add the Docker environment
+
+The Docker files pin Ubuntu 22.04 and ROS 2 Humble, install MoveIt/Gazebo, and
+build only the required upstream packages. Add them individually:
+
+```bash
+RAW_ROOT=https://raw.githubusercontent.com/notalexander30/abotclawpiper_lab/main
+curl -fL "$RAW_ROOT/docker/Dockerfile" -o docker/Dockerfile
+curl -fL "$RAW_ROOT/docker/entrypoint.sh" -o docker/entrypoint.sh
+chmod +x docker/entrypoint.sh
+```
+
+Read the image recipe and identify the three `COPY upstream/...` statements:
+
+```bash
+cat docker/Dockerfile
+```
+
+## 2.7 Validate the source tree
+
+```bash
+test -f docker/Dockerfile
+test -f src/block_interfaces/action/PickPlace.action
+test -f src/block_skills/config/blocks.json
+test -f src/block_skills/block_skills/server.py
+test -f src/block_skills/launch/sim.launch.py
+python3 -m json.tool src/block_skills/config/blocks.json >/dev/null
+python3 -m compileall -q src/block_skills
+echo "Custom skill source is ready"
+```
+
+Open `src/block_skills/config/blocks.json`. The file maps model names to
+colors, defines the three starting poses, sets the cube size and defines the
+table geometry. Gazebo remains the live pose source after spawning; this JSON
+is configuration, not a substitute for current simulator state.
 
 ### Checkpoint 2
 
 - [ ] `docker/Dockerfile` exists.
 - [ ] `src/block_skills/config/blocks.json` defines the table and blocks.
+- [ ] `src/block_interfaces/action/PickPlace.action` has goal, result and feedback sections.
 - [ ] The IFRA checkout contains the UR10e Xacro/URDF and mesh assets.
-- [ ] All three upstream repositories are on the commits in `repositories.json`.
+- [ ] All three upstream repositories are on the pinned commits shown above.
+- [ ] Students can explain which module implements ROS commands, motion execution and verification.
 
 ---
 
-# 3. Build the environment — 60 minutes
+# 3. Build the environment — 45 minutes
 
 ## 3.1 Build Ubuntu 22.04, ROS 2 Humble and IFRA packages
 
