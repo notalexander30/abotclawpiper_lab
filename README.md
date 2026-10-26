@@ -28,6 +28,7 @@ Run host commands from the project root:
 
 ```bash
 cd /home/xander/abotclaw+piper
+uname -s
 uname -m
 docker --version
 docker info
@@ -36,9 +37,12 @@ echo "$DISPLAY"
 command -v xauth
 ```
 
-This Docker workflow supports Linux `x86_64`. Docker and Git are required.
-`DISPLAY` and `xauth` are required for Gazebo/RViz windows and screenshots.
-Host ROS is not used.
+This Docker workflow requires a Linux host. `uname -s` identifies the operating
+system; `uname -m` separately reports a CPU type such as `x86_64` or `aarch64`.
+The complete stack was verified on Linux `x86_64`. The pinned ROS base image is
+available for `amd64` and `arm64/v8`, but this project has not been verified
+end-to-end on ARM. Docker and Git are required. `DISPLAY` and `xauth` are
+required for Gazebo/RViz windows and screenshots. Host ROS is not used.
 
 ## Repository layout
 

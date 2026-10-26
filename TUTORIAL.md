@@ -87,6 +87,7 @@ Open a terminal with **Ctrl+Alt+T**.
 
 ```bash
 cat /etc/os-release
+uname -s
 uname -m
 df -h .
 free -h
@@ -95,12 +96,17 @@ echo "$DISPLAY"
 
 Continue when:
 
-- The architecture is `x86_64`.
+- `uname -s` reports `Linux`.
+- `/etc/os-release` identifies an Ubuntu desktop installation.
+- Record the CPU result from `uname -m`: `x86_64` means Intel/AMD 64-bit and
+  `aarch64` means ARM 64-bit. Linux is the operating system, not the CPU type.
 - At least 15 GB of disk space is available.
 - The computer has Internet access.
 - `DISPLAY` contains a value such as `:0` or `:1` for the GUI exercises.
 
-The environment was tested on a computer with about 14 GiB RAM. Lower-memory
+The complete lab was verified on a Linux `x86_64` host with about 14 GiB RAM.
+The pinned ROS Docker base publishes both `amd64` and `arm64/v8` images, but the
+complete UR10e/MoveIt/Gazebo stack has not been verified on ARM. Lower-memory
 machines may run slowly; start in headless mode if the GUI cannot run reliably.
 
 ### 1.2 Install Git and desktop support
