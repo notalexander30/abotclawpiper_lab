@@ -1,40 +1,57 @@
-# Three-hour beginner lab: UR10e pick, place and stacking
+# 🤖 Three-hour beginner lab: UR10e pick, place and stacking
 
-> **Audience:** Students using a new Ubuntu desktop computer with little or no
-> Docker or ROS experience.
->
-> **Outcome:** Build and run a UR10e with a Robotiq 2F-85 gripper in Gazebo and
-> RViz, inspect block poses, execute pick-and-place skills, stack three colored
-> blocks, and save a screenshot plus a JSON completion report.
+> 👩‍🎓 **Audience:** Students using a new Ubuntu desktop computer with little or
+> no Docker or ROS experience.
 
-This page is formatted so it can be pasted into Notion. Work from top to
-bottom. Commands marked **Host terminal** run in the normal Ubuntu terminal.
-Commands marked **Container terminal** run inside Docker.
+> ⏱️ **Duration:** Three hours. Allow extra download time on a slow connection.
+
+> 🎯 **Outcome:** Build and run a UR10e with a Robotiq 2F-85 gripper in Gazebo
+> and RViz, inspect block poses, execute pick-and-place skills, stack three
+> colored blocks, and save a screenshot plus a JSON completion report.
+
+## 📋 How to use this page in Notion
+
+1. Open this file in GitHub's normal rendered view.
+2. Copy from the title above to the end of the page.
+3. Paste into a new empty Notion page.
+4. Keep **Paste and match style** disabled so headings, checkboxes, quotes and
+   code blocks retain their formatting.
+5. Work from top to bottom. Tick each checkpoint only after its command passes.
+
+Commands marked **Host terminal** run in the normal Ubuntu terminal. Commands
+marked **Container terminal** run inside Docker.
 
 No host ROS installation, Python virtual environment, camera or OpenCV is
 required. Docker provides Ubuntu 22.04, ROS 2 Humble, Gazebo Classic, MoveIt 2
 and the ROS dependencies.
 
-## Lab schedule
+## 🗓️ Lab schedule
 
-| Time | Activity | Result |
-| --- | --- | --- |
-| 00:00–00:20 | Understand the system and inspect the new PC | Requirements confirmed |
-| 00:20–00:45 | Install Git, Docker and GUI support | Docker test passes |
-| 00:45–01:15 | Create a workspace, clone robot assets and add skills | Source tree complete |
-| 01:15–01:45 | Build the Docker image | Humble/IFRA image built |
-| 01:45–02:00 | Build and test custom packages | Workspace ready |
-| 02:00–02:20 | Launch Gazebo and RViz | Robot and table visible |
-| 02:20–02:40 | Inspect poses and use basic skills | One block moved |
-| 02:40–02:55 | Stack three blocks | Stack verified |
-| 02:55–03:00 | Read evidence and shut down | Results saved |
+- **00:00–00:20 — Understand the system and inspect the PC**
+  Result: requirements confirmed.
+- **00:20–00:45 — Install Git, Docker and GUI support**
+  Result: Docker test passes.
+- **00:45–01:15 — Create a workspace, clone robot assets and add skills**
+  Result: source tree complete.
+- **01:15–01:45 — Build the Docker image**
+  Result: Ubuntu 22.04, ROS 2 Humble and IFRA image built.
+- **01:45–02:00 — Build and test custom packages**
+  Result: custom workspace ready.
+- **02:00–02:20 — Launch Gazebo and RViz**
+  Result: robot and table visible.
+- **02:20–02:40 — Inspect poses and use basic skills**
+  Result: one block moved by the robot.
+- **02:40–02:55 — Stack three blocks**
+  Result: stack physically verified.
+- **02:55–03:00 — Read evidence and shut down**
+  Result: screenshot and JSON result saved.
 
 > **Timing note:** The first Docker build downloads several gigabytes. A slow
 > connection or computer can push the lab beyond three hours. For a fixed
 > three-hour class, the instructor should pre-download the source and Docker
 > layers while still asking students to inspect every setup step.
 
-## What is inside the simulation
+## 🧱 What is inside the simulation
 
 ```text
 Ubuntu host
@@ -60,9 +77,9 @@ workspace setup below.
 
 ---
 
-# 1. Prepare a new Ubuntu PC — 45 minutes
+## 1. Prepare a new Ubuntu PC — 45 minutes
 
-## 1.1 Check the computer
+### 1.1 Check the computer
 
 Open a terminal with **Ctrl+Alt+T**.
 
@@ -86,7 +103,7 @@ Continue when:
 The environment was tested on a computer with about 14 GiB RAM. Lower-memory
 machines may run slowly; start in headless mode if the GUI cannot run reliably.
 
-## 1.2 Install Git and desktop support
+### 1.2 Install Git and desktop support
 
 **Host terminal:**
 
@@ -107,7 +124,7 @@ Git's official Linux guidance recommends using the distribution package
 manager on Debian/Ubuntu. See [Git installation for
 Linux](https://git-scm.com/install/linux.html).
 
-## 1.3 Install Docker Engine
+### 1.3 Install Docker Engine
 
 First check whether Docker already works:
 
@@ -151,7 +168,7 @@ contains `docker.io`, Podman compatibility packages, a separate `containerd`,
 or another Docker installation, use the conflict-removal instructions in that
 official guide before continuing.
 
-## 1.4 Allow your user to run Docker
+### 1.4 Allow your user to run Docker
 
 **Host terminal:**
 
@@ -173,7 +190,7 @@ docker run --rm hello-world
 > guide](https://docs.docker.com/engine/install/linux-postinstall/). Use it only
 > on accounts that should have that access.
 
-### Checkpoint 1
+### ✅ Checkpoint 1
 
 - [ ] `git --version` works.
 - [ ] `docker version` shows both Client and Server.
@@ -182,14 +199,14 @@ docker run --rm hello-world
 
 ---
 
-# 2. Create the workspace and add the skills — 30 minutes
+## 2. Create the workspace and add the skills — 30 minutes
 
 Students do **not** clone the finished `abotclawpiper_lab` repository in this
 lab. Start with an empty directory, clone the robot projects that the
 simulation needs, and then add the custom ROS 2 skill packages. This makes the
 boundary between reused IFRA code and student-added code visible.
 
-## 2.1 Create an empty lab workspace
+### 2.1 Create an empty lab workspace
 
 **Host terminal:**
 
@@ -210,7 +227,7 @@ ur10e-skills-lab/
 └── docker/                   # reproducible Ubuntu/ROS environment
 ```
 
-## 2.2 Clone the required robot and simulator repositories
+### 2.2 Clone the required robot and simulator repositories
 
 Clone the pinned revisions into `upstream/`. The first repository supplies the
 UR10e, Robotiq gripper, controllers and MoveIt configuration. The second
@@ -267,7 +284,7 @@ b056289ba93ccb549db98926dcbb9679642d0c8d
 
 Keep these repositories unchanged. All new behavior belongs under `src/`.
 
-## 2.3 Add the typed ROS 2 interface package
+### 2.3 Add the typed ROS 2 interface package
 
 Create the package layout:
 
@@ -302,7 +319,7 @@ The two `---` separators divide goal, result and feedback. This typed action is
 what a future agent adapter should call; the agent does not need permission to
 run arbitrary shell commands or joint trajectories.
 
-## 2.4 Add the reusable `block_skills` package
+### 2.4 Add the reusable `block_skills` package
 
 Create the Python package directories:
 
@@ -336,15 +353,22 @@ done
 
 These modules have separate jobs:
 
-| File | Responsibility |
-| --- | --- |
-| `geometry.py` | Generate the table, floor and colored cube SDF; calculate poses and stack relationships |
-| `server.py` | Query Gazebo state, validate requests, plan MoveIt motions, attach/detach and verify results |
-| `cli.py` | Convert student commands such as `pick`, `stack` and `add` into typed ROS requests |
-| `capture.py` | Save Gazebo screenshot evidence after physical verification |
-| `reports.py` | Write and read structured JSON task results |
-| `check.py` | Wait until Gazebo, MoveIt, controllers and the skill server are ready |
-| `sim.launch.py` | Start IFRA's UR10e/Robotiq simulation and the custom skill server |
+- **`geometry.py` — Scene geometry**
+  Generates the table, floor and colored cube SDF. It also calculates poses
+  and stack relationships.
+- **`server.py` — Skill execution**
+  Queries Gazebo state, validates requests, plans MoveIt motions,
+  attaches/detaches blocks and verifies results.
+- **`cli.py` — Student commands**
+  Converts commands such as `pick`, `stack` and `add` into typed ROS requests.
+- **`capture.py` — Visual evidence**
+  Saves a Gazebo screenshot after physical verification.
+- **`reports.py` — Machine-readable evidence**
+  Writes and reads structured JSON task results.
+- **`check.py` — Readiness**
+  Waits for Gazebo, MoveIt, controllers and the skill server.
+- **`sim.launch.py` — Complete launch**
+  Starts IFRA's UR10e/Robotiq simulation and the custom skill server.
 
 Inspect where the public commands and ROS endpoints are registered:
 
@@ -360,7 +384,7 @@ grep -RniE "add_parser|ActionServer|create_service|create_client" \
   src/block_skills/block_skills
 ```
 
-## 2.5 Understand how a skill is added
+### 2.5 Understand how a skill is added
 
 A complete skill crosses four layers. Use `stack` as the example:
 
@@ -395,7 +419,7 @@ This is the skill boundary ABot-Claw will use later. Natural language should
 select one of these typed, allowlisted operations; it should not generate
 unrestricted ROS or shell commands.
 
-## 2.6 Add the Docker environment
+### 2.6 Add the Docker environment
 
 The Docker files pin Ubuntu 22.04 and ROS 2 Humble, install MoveIt/Gazebo, and
 build only the required upstream packages. Add them individually:
@@ -413,7 +437,7 @@ Read the image recipe and identify the three `COPY upstream/...` statements:
 cat docker/Dockerfile
 ```
 
-## 2.7 Validate the source tree
+### 2.7 Validate the source tree
 
 ```bash
 test -f docker/Dockerfile
@@ -431,7 +455,7 @@ colors, defines the three starting poses, sets the cube size and defines the
 table geometry. Gazebo remains the live pose source after spawning; this JSON
 is configuration, not a substitute for current simulator state.
 
-### Checkpoint 2
+### ✅ Checkpoint 2
 
 - [ ] `docker/Dockerfile` exists.
 - [ ] `src/block_skills/config/blocks.json` defines the table and blocks.
@@ -442,9 +466,9 @@ is configuration, not a substitute for current simulator state.
 
 ---
 
-# 3. Build the environment — 45 minutes
+## 3. Build the environment — 45 minutes
 
-## 3.1 Build Ubuntu 22.04, ROS 2 Humble and IFRA packages
+### 3.1 Build Ubuntu 22.04, ROS 2 Humble and IFRA packages
 
 Stay in the project root.
 
@@ -467,7 +491,7 @@ docker run --rm ur10e:humble bash -c \
   'source /opt/ros/humble/setup.bash && ros2 --help >/dev/null && echo "ROS 2 Humble ready"'
 ```
 
-## 3.2 Build the custom ROS packages
+### 3.2 Build the custom ROS packages
 
 ```bash
 docker run --rm \
@@ -487,7 +511,7 @@ failures:
 test -f install/setup.bash && echo "Custom workspace ready"
 ```
 
-## 3.3 Prepare the container user files
+### 3.3 Prepare the container user files
 
 These files map the desktop user's UID and GID into Docker so generated files
 remain owned by the student.
@@ -500,7 +524,7 @@ printf 'root:x:0:\nsim:x:%s:\nnogroup:x:65534:\n' \
   "$(id -g)" > .container/group
 ```
 
-### Checkpoint 3
+### ✅ Checkpoint 3
 
 - [ ] Docker image `ur10e:humble` exists.
 - [ ] `install/setup.bash` exists.
@@ -509,9 +533,9 @@ printf 'root:x:0:\nsim:x:%s:\nnogroup:x:65534:\n' \
 
 ---
 
-# 4. Launch Gazebo and RViz — 20 minutes
+## 4. Launch Gazebo and RViz — 20 minutes
 
-## 4.1 Prepare X11 authentication
+### 4.1 Prepare X11 authentication
 
 Run this from a terminal opened directly in the Ubuntu desktop session:
 
@@ -525,7 +549,7 @@ test -s .xauth && echo "GUI authentication ready"
 
 Do not continue unless the last message appears.
 
-## 4.2 Start the complete simulation
+### 4.2 Start the complete simulation
 
 Check for an old container:
 
@@ -574,7 +598,7 @@ Expected output:
 ready=True; busy=False; holding=none; fault=none
 ```
 
-## 4.3 Inspect the robot and world
+### 4.3 Inspect the robot and world
 
 ```bash
 docker exec ur10e /entrypoint.sh ros2 control list_controllers
@@ -589,7 +613,7 @@ are active. The block list should contain `red_block`, `blue_block` and
 > orange goal preview in RViz does not move the Gazebo robot until a trajectory
 > is planned and executed.
 
-### Checkpoint 4
+### ✅ Checkpoint 4
 
 - [ ] Gazebo shows the UR10e, gripper, table and three colored blocks.
 - [ ] RViz shows the robot and MotionPlanning panel.
@@ -598,20 +622,20 @@ are active. The block list should contain `red_block`, `blue_block` and
 
 ---
 
-# 5. Learn the block skills — 20 minutes
+## 5. Learn the block skills — 20 minutes
 
 Every public coordinate is a block-centre position in metres in Gazebo's
 `world` frame. The table top is z = 0.65 m. A 0.05 m cube resting on it has
 centre z = 0.675 m.
 
-## 5.1 List poses and status
+### 5.1 List poses and status
 
 ```bash
 docker exec ur10e /entrypoint.sh ros2 run block_skills blocks status
 docker exec ur10e /entrypoint.sh ros2 run block_skills blocks list
 ```
 
-## 5.2 Pick and place using the robot
+### 5.2 Pick and place using the robot
 
 Move red to a free table position:
 
@@ -625,19 +649,22 @@ opens the gripper, approaches, grasps, attaches, lifts, transports, lowers,
 detaches, retreats and verifies the measured final pose. Wait for the command
 to finish before sending another request.
 
-## 5.3 Other available commands
+### 5.3 Other available commands
 
-| Command | Purpose | Robot moves? |
-| --- | --- | --- |
-| `status` | Read readiness, busy, held-block and fault state | No |
-| `list` | Retrieve current registered block poses | No |
-| `pick` | Pick one block and place it at coordinates | Yes |
-| `stack` | Pick one top block and place it on a support block | Yes |
-| `add` | Spawn a colored block at a random free location | No |
-| `spawn` | Spawn a colored block at explicit coordinates | No |
-| `move` | Reposition a block directly through Gazebo | No |
-| `randomize` | Randomize registered block locations | No |
-| `result` | Read a saved task report | No |
+**Skills that move the robot**
+
+- `pick` — Pick one block and place it at explicit coordinates.
+- `stack` — Pick one free top block and place it on a support block.
+
+**Scene and information commands that do not move the robot**
+
+- `status` — Read readiness, busy, held-block and fault state.
+- `list` — Retrieve registered blocks and their latest Gazebo poses.
+- `add` — Spawn a colored block at a random free location.
+- `spawn` — Spawn a colored block at explicit coordinates.
+- `move` — Reposition a block directly through Gazebo.
+- `randomize` — Randomize registered block locations.
+- `result` — Read a saved task report.
 
 Display CLI help:
 
@@ -666,7 +693,7 @@ UR10e must physically perform the task.
 
 ---
 
-# 6. Stack three blocks — 15 minutes
+## 6. Stack three blocks — 15 minutes
 
 Stacking works best from the fresh default scene. If section 5 changed the
 scene, restart before continuing:
@@ -677,7 +704,7 @@ docker rm -f ur10e
 
 Repeat sections 4.1 and 4.2, then wait for readiness.
 
-## 6.1 Stack blue on red
+### 6.1 Stack blue on red
 
 ```bash
 docker exec ur10e /entrypoint.sh \
@@ -691,7 +718,7 @@ Continue only when the result contains:
 "verified": true
 ```
 
-## 6.2 Stack green on blue
+### 6.2 Stack green on blue
 
 ```bash
 docker exec ur10e /entrypoint.sh \
@@ -728,7 +755,7 @@ block is free on top.
 
 ---
 
-# 7. Understand screenshot and JSON evidence — 5 minutes
+## 7. Understand screenshot and JSON evidence — 5 minutes
 
 Each successful GUI stack requests screenshot evidence by default. The output
 contains a 32-character `task_id`, for example:
@@ -773,7 +800,7 @@ docker exec ur10e /entrypoint.sh \
 A correct existing stack should return `already_complete: true`, verify it
 without moving the robot, and save fresh evidence.
 
-### Final student checkpoint
+### ✅ Final student checkpoint
 
 - [ ] Three blocks are visibly stacked in Gazebo.
 - [ ] The final action reports `success: true` and `verified: true`.
@@ -785,22 +812,33 @@ Save the final screenshot, JSON report and terminal output for submission.
 
 ---
 
-# 8. Troubleshooting and shutdown
+## 8. Troubleshooting and shutdown
 
-## Common problems
+### Common problems
 
-| Problem | Check |
-| --- | --- |
-| Docker permission denied | Log out/in after joining `docker`; run `docker info` |
-| Container name already exists | Run `docker ps -a`; reset with `docker rm -f ur10e` |
-| Package not found | Confirm the custom build created `install/setup.bash`; use `/entrypoint.sh` |
-| Gazebo or RViz does not open | Check `DISPLAY`, `xauth`, `.xauth`, and run from the desktop session |
-| Status never becomes ready | Read `docker logs --tail 200 ur10e` |
-| Plan/Execute does not move | Choose a goal different from `<current>` and check active controllers |
-| `BLOCK_NOT_TOP` | Another block rests on the moving block; move the top block or restart |
-| `STACK_LIMIT` | The configured maximum is three blocks |
-| Screenshot evidence fails | Use GUI mode and keep exactly one Gazebo window visible |
-| `holding_block: true` | Restart before sending another manipulation request |
+- **Docker permission denied**
+  Log out and back in after joining the `docker` group, then run `docker info`.
+- **Container name already exists**
+  Run `docker ps -a`, then reset it with `docker rm -f ur10e`.
+- **Package not found**
+  Confirm the custom build created `install/setup.bash` and invoke ROS through
+  `/entrypoint.sh`.
+- **Gazebo or RViz does not open**
+  Check `DISPLAY`, `xauth` and `.xauth`. Run from a terminal opened in the
+  desktop session.
+- **Status never becomes ready**
+  Read `docker logs --tail 200 ur10e`.
+- **Plan/Execute does not move**
+  Choose a goal different from `<current>` and check that controllers are
+  active.
+- **`BLOCK_NOT_TOP`**
+  Another block rests on the moving block. Move the top block or restart.
+- **`STACK_LIMIT`**
+  The configured maximum is three blocks.
+- **Screenshot evidence fails**
+  Use GUI mode and keep exactly one Gazebo window visible.
+- **`holding_block: true`**
+  Restart before sending another manipulation request.
 
 Read live launch output:
 
@@ -811,7 +849,7 @@ docker logs --follow ur10e
 
 Press **Ctrl+C** to stop following logs; the detached simulation continues.
 
-## Stop and reset
+### Stop and reset
 
 ```bash
 docker stop --time 15 ur10e
@@ -821,7 +859,7 @@ docker rm ur10e
 Removing the container resets the simulated scene next time. It does not remove
 source files, Docker image layers, custom builds or `artifacts/` on the host.
 
-## What students should be able to explain
+### What students should be able to explain
 
 1. Why Docker is different from a Python virtual environment or ROS sourcing.
 2. Where the original UR10e model comes from and why its assets stay pinned.
