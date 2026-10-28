@@ -1,7 +1,7 @@
 # UR10e simulation development runbook
 
 This README is for building, running and changing the UR10e pick-and-place
-simulation. For the guided three-hour lab with explanations and checkpoints,
+simulation. For the student lab with practical tasks, questions and screenshots,
 use [TUTORIAL.md](TUTORIAL.md). To connect ABot-Claw or another agent to the
 typed ROS skill layer, read [ABot-Claw integration](docs/ABOTCLAW_INTEGRATION.md).
 
