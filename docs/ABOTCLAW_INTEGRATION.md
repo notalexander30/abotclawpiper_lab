@@ -208,7 +208,7 @@ concurrent requests.
 
 ## End-to-end acceptance test
 
-Start from a fresh GUI scene and verify readiness using [README.md](../README.md).
+Start from a fresh GUI scene and verify readiness using [instructor setup](INSTRUCTOR_SETUP.md).
 Then send these requests through ABot-Claw, not directly through the CLI:
 
 1. “List the available blocks.”

@@ -1,8 +1,40 @@
 # Verification record
 
+## Fresh workspace audit of the revised tutorial
+
+An additional audit started in an empty temporary directory, downloaded the
+three public repositories at the tutorial's pinned commits, and downloaded
+the custom source/Docker files from published revision `94c5cab`. No existing
+host `upstream/`, custom build or installation was copied into that workspace.
+The launcher was created from the code supplied in the revised tutorial.
+
+- Docker build passed using matching cached layers, producing image ID
+  `9c6003db9e00716790cd4405414b35ea95f3e0ac090db74adb67a3158ce1134e`.
+- Both custom packages built from scratch in the empty workspace.
+- GUI launch reported ready, and live poses matched the starting scene.
+- Restart loaded the edited green position (`x=0.65`) and `approach_height=0.20`.
+- The tutorial's placement script succeeded at `(0.82, -0.28, 0.675)` and,
+  after changing its offsets, `(0.85, -0.35, 0.675)`.
+- Blue-on-red and green-on-blue returned `success=true`, `verified=true`,
+  and screenshot evidence. The screenshots were opened and inspected.
+- Repeating green-on-blue returned `already_complete=true` without motion.
+
+The final three-block task ID was `6708f6bf01674e0388747432b81a66e0`;
+its measured top-block centre was approximately `(0.849961, -0.350020, 0.774678)`.
+Audit logs and reports are in `/tmp/ur10e-fresh.BGLE3i` on the test computer;
+this temporary directory is not a dependency of the tutorial or distributed
+evidence. It may be cleared by the operating system.
+
+This verifies the revised download/build/run path on the existing Linux
+desktop. It does not verify installing Docker on a second computer, a cold
+uncached apt build, ARM, or another graphics environment. Ubuntu package
+patch versions are still resolved at build time.
+
+## Original verification record
+
 This document records tests completed on 22 October 2026. It is historical
 evidence, not a claim that every future build or computer will produce the same
-result. Run the commands in [README.md](../README.md#tests) on the target
+result. Run the commands in [instructor setup](INSTRUCTOR_SETUP.md#tests) on the target
 computer before reporting that its simulation works.
 
 Raw colcon output, temporary logs, build trees and task artifact folders are
